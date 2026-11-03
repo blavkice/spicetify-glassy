@@ -1,0 +1,11 @@
+{
+  "name": "Glassy",
+  "description": "iOS-style frosted glass over a blurred cover of the song that's playing.",
+  "preview": "screenshot.png",
+  "readme": "README.md",
+  "usercss": "user.css",
+  "schemes": "color.ini",
+  "include": ["https://cdn.jsdelivr.net/gh/blavkice/spicetify-glassy@main/theme.js"],
+  "authors": [{ "name": "blavkice", "url": "https://github.com/blavkice" }],
+  "tags": ["glass", "blur", "dark", "dynamic"]
+}

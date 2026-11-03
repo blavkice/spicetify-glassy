@@ -1,0 +1,416 @@
+/* =========================================================
+   Glassy: a Spicetify theme by blavkice
+   Frosted-glass panels over the blurred cover of the current song.
+   Uses Spotify's stable hooks (ids / data-testid / roles /
+   encore tokens) because most class names are now hashed.
+   ========================================================= */
+
+:root {
+	--glass-blur: 40px;
+	--glass-sat: 170%;
+	--glass-radius: 14px;
+	--glass-tint: rgba(20, 14, 10, 0.22);          /* panel fill */
+	--glass-tint-strong: rgba(24, 18, 13, 0.62);   /* menus, popovers */
+	--glass-border: rgba(255, 244, 228, 0.11);
+	--glass-shine: rgba(255, 255, 255, 0.13);      /* top inner highlight */
+	--glass-fill: rgba(255, 244, 228, 0.10);       /* chips / buttons */
+	--glass-fill-hover: rgba(255, 244, 228, 0.16);
+	--glass-fill-press: rgba(255, 244, 228, 0.22);
+}
+
+/* Carousel edge fades and arrow strips: let the glass show through */
+:root {
+	--chevrons-button-color: transparent;
+	--carousel-start-chevron-gradient: transparent;
+	--carousel-end-chevron-gradient: transparent;
+}
+
+/* ---------- Spotify design tokens (fixes the grey/brown mismatch) ---------- */
+.encore-dark-theme,
+.encore-dark-theme .encore-base-set {
+	--background-base: transparent;
+	--background-highlight: var(--glass-fill);
+	--background-press: rgba(0, 0, 0, 0.25);
+	--background-elevated-base: rgba(255, 244, 228, 0.07);
+	--background-elevated-highlight: var(--glass-fill-hover);
+	--background-elevated-press: var(--glass-fill-press);
+	--background-tinted-base: var(--glass-fill);
+	--background-tinted-highlight: var(--glass-fill-hover);
+	--background-tinted-press: var(--glass-fill-press);
+	--text-base: #fff6e8;
+	--text-subdued: #cfc3ac;
+	--text-bright-accent: #f0c24f;
+	--essential-base: #fff6e8;
+	--essential-subdued: #9c8f78;
+	--essential-bright-accent: #e8b847;
+	--decorative-base: #fff6e8;
+	--decorative-subdued: rgba(255, 244, 228, 0.14);
+}
+
+/* Gold accent surfaces (play button, etc.) get dark text, not white */
+.encore-dark-theme .encore-bright-accent-set {
+	--background-base: #e8b847;
+	--background-highlight: #f3c95e;
+	--background-press: #c99a2e;
+	--background-elevated-base: #f3c95e;
+	--background-tinted-base: #e8b847;
+	--text-base: #1a120b;
+	--text-subdued: #1a120b;
+	--essential-base: #1a120b;
+	--decorative-subdued: #c99a2e;
+}
+
+/* ---------- Backdrop: blurred cover art (set by theme.js) ---------- */
+html {
+	background: #0d0906 !important;
+}
+
+/* body must stay transparent: its background paints above z-index:-1 layers */
+body {
+	background: transparent !important;
+}
+
+#glass-bg {
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	overflow: hidden;
+	pointer-events: none;
+}
+
+#glass-bg .glass-layer {
+	position: absolute;
+	inset: -15%;
+	background-size: cover;
+	background-position: center;
+	filter: blur(80px) saturate(1.8) brightness(0.8);
+	opacity: 0;
+	transition: opacity 1.2s ease;
+}
+
+#glass-bg .glass-layer.visible {
+	opacity: 1;
+}
+
+/* Dark vignette keeps text readable even over bright covers */
+#glass-bg .glass-tint {
+	position: absolute;
+	inset: 0;
+	opacity: calc(0.55 + var(--glass-dim, 0.3) * 0.9);
+	transition: opacity 1.2s ease;
+	background:
+		radial-gradient(ellipse at 50% 0%, rgba(13, 9, 6, 0.05), rgba(13, 9, 6, 0.45) 80%),
+		rgba(13, 9, 6, 0.18);
+}
+
+.Root,
+.Root > div {
+	background: transparent !important;
+}
+
+/* ---------- Glass panels ----------
+   The frost lives on a ::before layer, not on the panel itself. If the panel
+   had backdrop-filter, Chromium would stop nested bars (top bar, sticky
+   headers) from blurring the content that scrolls under them. */
+#Desktop_LeftSidebar_Id,
+#main-view,
+#Desktop_PanelContainer_Id,
+[data-testid="now-playing-bar"] {
+	position: relative;
+	isolation: isolate;
+	background: transparent !important;
+	border: 1px solid var(--glass-border);
+	border-radius: var(--glass-radius);
+	box-shadow:
+		inset 0 1px 0 var(--glass-shine),
+		0 10px 40px rgba(0, 0, 0, 0.35);
+	overflow: hidden;
+}
+
+#Desktop_LeftSidebar_Id::before,
+#main-view::before,
+#Desktop_PanelContainer_Id::before,
+[data-testid="now-playing-bar"]::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	border-radius: inherit;
+	background: var(--glass-tint);
+	backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+	-webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+	pointer-events: none;
+}
+
+/* Inner wrappers must not paint their own opaque layer */
+#Desktop_LeftSidebar_Id > *,
+#Desktop_PanelContainer_Id > * {
+	background-color: transparent !important;
+}
+
+[data-testid="now-playing-bar"] {
+	margin: 0;
+	padding: 8px 0;
+}
+
+/* Top bar: frosted strip instead of a solid colour */
+#global-nav-bar {
+	background: transparent !important;
+}
+
+.main-topBar-background {
+	background-color: rgba(20, 14, 10, 0.4) !important;
+	backdrop-filter: blur(30px) saturate(160%) !important;
+	-webkit-backdrop-filter: blur(30px) saturate(160%) !important;
+}
+
+.main-topBar-overlay {
+	background-color: transparent !important;
+}
+
+/* Sticky track-list header: invisible at rest, light frosted strip once stuck */
+.main-trackList-trackListHeader {
+	background: transparent !important;
+	box-shadow: none !important;
+	transition: background 0.2s ease;
+}
+
+.main-trackList-trackListHeader.U5EKmWxF_AHcuhhqWTN8 {
+	background: rgba(255, 244, 228, 0.07) !important;
+	backdrop-filter: blur(30px) saturate(160%);
+	-webkit-backdrop-filter: blur(30px) saturate(160%);
+	border-bottom: 1px solid var(--glass-border);
+}
+
+/* Page headers: let the glass show instead of flat gradients */
+.main-entityHeader-backgroundColor,
+.main-actionBarBackground-background {
+	opacity: 0.35;
+}
+
+/* ---------- Menus, popovers, tooltips, dialogs ---------- */
+[role="menu"],
+[data-encore-id="popover"],
+[role="dialog"] > div,
+.main-contextMenu-menu {
+	background: var(--glass-tint-strong) !important;
+	backdrop-filter: blur(30px) saturate(160%);
+	-webkit-backdrop-filter: blur(30px) saturate(160%);
+	border: 1px solid var(--glass-border);
+	border-radius: 12px !important;
+	box-shadow:
+		inset 0 1px 0 var(--glass-shine),
+		0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
+[role="menu"] button,
+[role="menuitem"],
+.main-contextMenu-menuItemButton {
+	color: var(--text-base) !important;
+}
+
+/* ---------- Chips, pills, inputs ---------- */
+input {
+	background-color: var(--glass-fill) !important;
+	border: 1px solid var(--glass-border) !important;
+	border-radius: 999px !important;
+	color: var(--text-base) !important;
+}
+
+input::placeholder {
+	color: var(--text-subdued) !important;
+}
+
+/* ---------- Lists & cards ---------- */
+[role="row"]:hover,
+[role="listitem"]:hover {
+	border-radius: 8px;
+}
+
+.main-card-card {
+	background: rgba(255, 244, 228, 0.04);
+	border-radius: 12px;
+	transition: background 0.2s ease;
+}
+
+.main-card-card:hover {
+	background: var(--glass-fill-hover);
+}
+
+/* Currently-playing row stays gold */
+.main-trackList-trackListRow.main-trackList-active .main-trackList-rowTitle {
+	color: var(--text-bright-accent);
+}
+
+/* ---------- Scrollbars ---------- */
+::-webkit-scrollbar-thumb {
+	background: rgba(255, 244, 228, 0.22) !important;
+	border-radius: 999px;
+}
+
+
+
+/* Player bar: its grid wrapper paints a solid strip behind the glass */
+div:has(> [data-testid="now-playing-bar"]) {
+	background: transparent !important;
+}
+
+/* Now Playing panel: lyrics card as dark smoked glass with clear line contrast */
+[data-testid="lyrics-npv-section"] {
+	background-color: rgba(12, 8, 6, 0.55) !important;
+	backdrop-filter: blur(30px) saturate(160%);
+	-webkit-backdrop-filter: blur(30px) saturate(160%);
+	border: 1px solid var(--glass-border);
+	box-shadow: inset 0 1px 0 var(--glass-shine), 0 8px 30px rgba(0, 0, 0, 0.3);
+	--lyrics-color-background: transparent !important;
+	--lyrics-color-active: #ffffff !important;
+	--lyrics-color-inactive: rgba(255, 246, 232, 0.62) !important;
+	--lyrics-color-passed: rgba(255, 246, 232, 0.42) !important;
+	--lyrics-color-messaging: #ffffff !important;
+}
+
+[data-testid="lyrics-npv-section"] * {
+	text-shadow: 0 1px 12px rgba(0, 0, 0, 0.35);
+}
+
+/* Home section rows: keep hover arrows, drop the permanent edge strip */
+.main-shelf-shelf,
+section[data-testid] {
+	background: transparent;
+}
+
+/* ---------- Spotify 1.3.6 fades that end in an opaque colour ----------
+   These are hashed class names, so a future Spotify update may rename them.
+   If that happens the only effect is that the dark fades come back. */
+
+/* Header colour slabs (home, playlists, albums): drop the per-page colour,
+   so every page follows the current song's glass instead */
+.h1AjDPMDbQn9UTUl6owY,
+.FBhDTxAzWggCUgjJluMU,
+.T2XRKvkWneSSMSOCEo40,
+[class*="mixingBackground"],
+.rRzDzkFoPB1jsHaUjsDT,
+.N6W22Ky7W6I93tr3vrqE,
+.A0hGajCN2_Y1J_AjxSJh,
+[data-testid="overscroll-background"] {
+	background-color: transparent !important;
+	background-image: none !important;
+}
+
+[class*="mixingBackground"]::after,
+.A0hGajCN2_Y1J_AjxSJh::after {
+	display: none !important;
+}
+
+/* Artist/header image that fades into solid base colour */
+.Dczmeqq_ljWwCvMthTFB {
+	background-image: var(--background-image) !important;
+	-webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent 100%);
+	mask-image: linear-gradient(to bottom, #000 40%, transparent 100%);
+}
+
+/* Now Playing panel: canvas/cover overlays fade to transparent, not to brown */
+.m20Z3iWQmfJBSxDZ_WEk::before {
+	background: linear-gradient(rgba(0, 0, 0, 0.45) 0%, transparent 30% 80%, rgba(0, 0, 0, 0.35) 100%) !important;
+}
+.m20Z3iWQmfJBSxDZ_WEk::after {
+	background: linear-gradient(rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.25) 60%, transparent 100%) !important;
+}
+.RceteCtZflosRWqlgYrV::before {
+	background: none !important;
+}
+
+/* Canvas video in the Now Playing panel: soft fade instead of a hard bottom edge */
+.m20Z3iWQmfJBSxDZ_WEk {
+	--npv-fade: linear-gradient(
+		to bottom,
+		#000 0%,
+		#000 30%,
+		rgba(0, 0, 0, 0.82) 45%,
+		rgba(0, 0, 0, 0.55) 60%,
+		rgba(0, 0, 0, 0.28) 75%,
+		rgba(0, 0, 0, 0.1) 88%,
+		transparent 100%
+	);
+	-webkit-mask-image: var(--npv-fade);
+	mask-image: var(--npv-fade);
+}
+
+/* Marketplace sticky sort bar */
+.marketplace-header {
+	background: rgba(20, 14, 10, 0.4) !important;
+	backdrop-filter: blur(30px) saturate(160%);
+	-webkit-backdrop-filter: blur(30px) saturate(160%);
+	border: 1px solid var(--glass-border);
+	border-radius: 12px;
+}
+
+/* ---------- Player controls: iOS-style glass ---------- */
+[data-testid="player-controls"] button {
+	transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+/* Secondary buttons (shuffle, prev, next, repeat): frosted circle on hover */
+[data-testid="general-controls"] button:not([data-testid="control-button-playpause"]) {
+	border-radius: 50% !important;
+}
+
+[data-testid="general-controls"] button:not([data-testid="control-button-playpause"]):hover {
+	background: rgba(255, 244, 228, 0.12) !important;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+/* Play / pause: a raised glass bubble */
+[data-testid="control-button-playpause"] {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	align-self: center;
+	padding: 0 !important;
+	width: 40px !important;
+	height: 40px !important;
+	min-width: 40px;
+	border-radius: 50% !important;
+	background: linear-gradient(160deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.1)) !important;
+	backdrop-filter: blur(20px) saturate(180%);
+	-webkit-backdrop-filter: blur(20px) saturate(180%);
+	border: 1px solid rgba(255, 255, 255, 0.28) !important;
+	box-shadow:
+		inset 0 1px 0 rgba(255, 255, 255, 0.45),
+		inset 0 -1px 0 rgba(0, 0, 0, 0.15),
+		0 6px 18px rgba(0, 0, 0, 0.3);
+	color: #fff !important;
+}
+
+[data-testid="control-button-playpause"] > span {
+	background: transparent !important;
+	color: #fff !important;
+	box-shadow: none !important;
+}
+
+[data-testid="control-button-playpause"]:hover {
+	transform: scale(1.06);
+	background: linear-gradient(160deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.16)) !important;
+}
+
+[data-testid="control-button-playpause"]:active {
+	transform: scale(0.96);
+}
+
+/* Progress + volume bars: thin glassy track, bright fill */
+.progress-bar {
+	--bg-color: rgba(255, 244, 228, 0.18) !important;
+	--fg-color: rgba(255, 250, 242, 0.95) !important;
+	--is-active-fg-color: #f0c24f !important;
+	--progress-bar-height: 5px !important;
+}
+
+/* Artist page banner: keep the photo, swap the solid brown overlay for a soft scrim */
+.JAqFwQzhVsvnypqQ62UZ::after {
+	background-color: transparent !important;
+	background-image: linear-gradient(transparent 0%, rgba(0, 0, 0, 0.35) 100%) !important;
+}
+#main-view [data-testid="background-image"] {
+	-webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+	mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+}
