@@ -13,8 +13,9 @@ text stays readable.
 - Page headers follow the song's glass instead of each playlist's own colour
 - Frosted top bar and sticky track-list header that blur what scrolls under them
 - iOS-style glass play/pause button and slim progress and volume bars
+- Glass action-bar buttons on playlist and album pages, tinted with the colour of the current cover
 - Smoked-glass lyrics card with clear active, upcoming and past line contrast
-- Glass context menus and popovers
+- Glass context menus, popovers and search suggestions
 
 ## Install
 

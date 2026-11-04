@@ -18,6 +18,17 @@
 	--glass-fill-press: rgba(255, 244, 228, 0.22);
 }
 
+/* Song accent (set by theme.js from the cover). Registered so it can crossfade. */
+@property --glass-accent {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: #e8b847;
+}
+
+:root {
+	transition: --glass-accent 1.2s ease;
+}
+
 /* Carousel edge fades and arrow strips: let the glass show through */
 :root {
 	--chevrons-button-color: transparent;
@@ -194,13 +205,43 @@ body {
 [role="dialog"] > div,
 .main-contextMenu-menu {
 	background: var(--glass-tint-strong) !important;
-	backdrop-filter: blur(30px) saturate(160%);
-	-webkit-backdrop-filter: blur(30px) saturate(160%);
 	border: 1px solid var(--glass-border);
 	border-radius: 12px !important;
 	box-shadow:
 		inset 0 1px 0 var(--glass-shine),
 		0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
+[data-encore-id="popover"],
+[role="dialog"] > div {
+	backdrop-filter: blur(30px) saturate(160%);
+	-webkit-backdrop-filter: blur(30px) saturate(160%);
+}
+
+/* Menus get their frost from a layer on the tippy wrapper, not the menu list.
+   Submenus are rendered inside the parent list, which scrolls: a
+   backdrop-filter there would make it their containing block and clip them. */
+[data-tippy-root]:has(> [role="menu"], > * > [role="menu"])::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	border-radius: 12px;
+	backdrop-filter: blur(30px) saturate(160%);
+	-webkit-backdrop-filter: blur(30px) saturate(160%);
+	pointer-events: none;
+}
+
+/* Search suggestions dropdown under the top-bar search field */
+#search-dropdown > div {
+	background: rgba(22, 16, 11, 0.72) !important;
+	backdrop-filter: blur(40px) saturate(160%);
+	-webkit-backdrop-filter: blur(40px) saturate(160%);
+	border: 1px solid var(--glass-border);
+	border-radius: 14px !important;
+	box-shadow:
+		inset 0 1px 0 var(--glass-shine),
+		0 16px 48px rgba(0, 0, 0, 0.5) !important;
 }
 
 [role="menu"] button,
@@ -410,7 +451,110 @@ section[data-testid] {
 	background-color: transparent !important;
 	background-image: linear-gradient(transparent 0%, rgba(0, 0, 0, 0.35) 100%) !important;
 }
-#main-view [data-testid="background-image"] {
-	-webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
-	mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+/* Spotify hides the banner on scroll by covering it with an opaque page background,
+   which the glass removes. Fade the photo itself instead, driven by a scroll
+   timeline on the main view. The mask sits on the wrapper so the fade ends
+   before its clip edge. */
+#main-view .main-view-container {
+	timeline-scope: --glassy-main-scroll;
+}
+
+#main-view .main-view-container__scroll-node > [data-overlayscrollbars-viewport] {
+	scroll-timeline: --glassy-main-scroll block;
+}
+
+#main-view div:has(> [data-testid="background-image"]) {
+	-webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent 100%);
+	mask-image: linear-gradient(to bottom, #000 45%, transparent 100%);
+	animation: glassy-banner-fade linear both;
+	animation-timeline: --glassy-main-scroll;
+	animation-range: 0 320px;
+}
+
+@keyframes glassy-banner-fade {
+	to {
+		opacity: 0;
+	}
+}
+
+/* ---------- Page action bar (play, shuffle, save, download, more) ----------
+   Same glass as the player controls, tinted with the current song's accent. */
+[data-testid="action-bar-row"] {
+	--text-bright-accent: var(--glass-accent);
+	--essential-bright-accent: var(--glass-accent);
+}
+
+[data-testid="action-bar-row"] [data-encore-id="buttonPrimary"] {
+	border-radius: 50%;
+	transition: transform 0.15s ease;
+}
+
+[data-testid="action-bar-row"] [data-encore-id="buttonPrimary"] > span {
+	background:
+		linear-gradient(160deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0) 60%),
+		color-mix(in srgb, var(--glass-accent) 62%, transparent) !important;
+	backdrop-filter: blur(20px) saturate(180%);
+	-webkit-backdrop-filter: blur(20px) saturate(180%);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	box-shadow:
+		inset 0 1px 0 rgba(255, 255, 255, 0.5),
+		inset 0 -1px 0 rgba(0, 0, 0, 0.15),
+		0 6px 18px rgba(0, 0, 0, 0.3) !important;
+	color: var(--glass-accent-ink, #1a120b) !important;
+	transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+[data-testid="action-bar-row"] [data-encore-id="buttonPrimary"]:hover > span {
+	background:
+		linear-gradient(160deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.04) 60%),
+		color-mix(in srgb, var(--glass-accent) 74%, transparent) !important;
+}
+
+[data-testid="action-bar-row"] [data-encore-id="buttonPrimary"]:active {
+	transform: scale(0.96);
+}
+
+/* Secondary buttons: frosted circles */
+[data-testid="action-bar-row"] [data-encore-id="buttonTertiary"] {
+	width: 48px;
+	height: 48px;
+	min-block-size: 48px;
+	padding: 0;
+	justify-content: center;
+	border-radius: 50% !important;
+	background: rgba(255, 244, 228, 0.06) !important;
+	border: 1px solid var(--glass-border);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+	backdrop-filter: blur(16px) saturate(160%);
+	-webkit-backdrop-filter: blur(16px) saturate(160%);
+	transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+[data-testid="action-bar-row"] [data-encore-id="buttonTertiary"]:hover {
+	background: rgba(255, 244, 228, 0.14) !important;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+	transform: scale(1.04);
+}
+
+[data-testid="action-bar-row"] [data-encore-id="buttonTertiary"]:active {
+	transform: scale(0.96);
+}
+
+/* Active toggles (shuffle on, saved, downloaded) glow in the song's colour */
+[data-testid="action-bar-row"] [data-encore-id="buttonTertiary"][aria-checked="true"] {
+	background: color-mix(in srgb, var(--glass-accent) 18%, transparent) !important;
+	border-color: color-mix(in srgb, var(--glass-accent) 40%, transparent);
+}
+
+/* Preview / "Explore" cover thumbnail: glass frame instead of the grey outline */
+[data-testid="watch-feed-entity-button"] > div,
+[data-testid="watch-feed-entity-button"] img {
+	border-color: var(--glass-border) !important;
+	border-radius: 10px !important;
+}
+
+[data-testid="watch-feed-entity-button"] > div {
+	box-shadow:
+		inset 0 1px 0 var(--glass-shine),
+		0 6px 18px rgba(0, 0, 0, 0.3);
 }
