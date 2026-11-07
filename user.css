@@ -343,6 +343,20 @@ section[data-testid] {
 	display: none !important;
 }
 
+/* Same slabs, matched by shape instead of class name, so they stay clear on
+   Spotify builds whose hashes differ (other platforms, other versions).
+   They are empty divs coloured inline; cover placeholders are coloured the
+   same way but always contain their <img>, so :empty leaves them alone. */
+#main-view div:empty[style*="background-color"] {
+	background-color: transparent !important;
+	background-image: none !important;
+}
+
+#main-view div:empty[style*="background-color"]::before,
+#main-view div:empty[style*="background-color"]::after {
+	display: none !important;
+}
+
 /* Artist/header image that fades into solid base colour */
 .Dczmeqq_ljWwCvMthTFB {
 	background-image: var(--background-image) !important;
