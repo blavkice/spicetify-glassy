@@ -56,6 +56,7 @@
 		if (total < 3 || best.w < 1) {
 			root.setProperty("--glass-accent", "rgb(255, 246, 232)");
 			root.setProperty("--glass-accent-ink", "#1a120b");
+			root.setProperty("--spice-rgb-button", "255, 246, 232");
 			return;
 		}
 		let [h, s, l] = rgbToHsl(best.r / best.w, best.g / best.w, best.b / best.w);
@@ -63,6 +64,7 @@
 		l = Math.min(Math.max(l, 0.5), 0.66);
 		const [r, g, b] = hslToRgb(h, s, l);
 		root.setProperty("--glass-accent", `rgb(${r}, ${g}, ${b})`);
+		root.setProperty("--spice-rgb-button", `${r}, ${g}, ${b}`);
 		const y = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
 		root.setProperty("--glass-accent-ink", y > 0.55 ? "#1a120b" : "#ffffff");
 	}

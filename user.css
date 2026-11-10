@@ -16,6 +16,12 @@
 	--glass-fill: rgba(255, 244, 228, 0.10);       /* chips / buttons */
 	--glass-fill-hover: rgba(255, 244, 228, 0.16);
 	--glass-fill-press: rgba(255, 244, 228, 0.22);
+	/* Accent for icons and text on the dark glass: lifted towards cream so
+	   dark hues (deep blue, purple) stay readable */
+	--glass-accent-bright: color-mix(in srgb, var(--glass-accent) 72%, #fff6e8);
+	/* Spicetify's own button colour (extensions, Marketplace) follows the song too */
+	--spice-button: var(--glass-accent);
+	--spice-button-active: var(--glass-accent-bright);
 }
 
 /* Song accent (set by theme.js from the cover). Registered so it can crossfade. */
@@ -50,25 +56,26 @@
 	--background-tinted-press: var(--glass-fill-press);
 	--text-base: #fff6e8;
 	--text-subdued: #cfc3ac;
-	--text-bright-accent: #f0c24f;
+	--text-bright-accent: var(--glass-accent-bright);
 	--essential-base: #fff6e8;
 	--essential-subdued: #9c8f78;
-	--essential-bright-accent: #e8b847;
+	--essential-bright-accent: var(--glass-accent-bright);
 	--decorative-base: #fff6e8;
 	--decorative-subdued: rgba(255, 244, 228, 0.14);
 }
 
-/* Gold accent surfaces (play button, etc.) get dark text, not white */
+/* Accent surfaces (play buttons, etc.) take the song's colour, with an icon
+   colour picked for contrast against it */
 .encore-dark-theme .encore-bright-accent-set {
-	--background-base: #e8b847;
-	--background-highlight: #f3c95e;
-	--background-press: #c99a2e;
-	--background-elevated-base: #f3c95e;
-	--background-tinted-base: #e8b847;
-	--text-base: #1a120b;
-	--text-subdued: #1a120b;
-	--essential-base: #1a120b;
-	--decorative-subdued: #c99a2e;
+	--background-base: var(--glass-accent);
+	--background-highlight: var(--glass-accent-bright);
+	--background-press: color-mix(in srgb, var(--glass-accent) 80%, #000);
+	--background-elevated-base: var(--glass-accent-bright);
+	--background-tinted-base: var(--glass-accent);
+	--text-base: var(--glass-accent-ink, #1a120b);
+	--text-subdued: var(--glass-accent-ink, #1a120b);
+	--essential-base: var(--glass-accent-ink, #1a120b);
+	--decorative-subdued: color-mix(in srgb, var(--glass-accent) 80%, #000);
 }
 
 /* ---------- Backdrop: blurred cover art (set by theme.js) ---------- */
@@ -278,7 +285,7 @@ input::placeholder {
 	background: var(--glass-fill-hover);
 }
 
-/* Currently-playing row stays gold */
+/* Currently-playing row takes the song's accent */
 .main-trackList-trackListRow.main-trackList-active .main-trackList-rowTitle {
 	color: var(--text-bright-accent);
 }
@@ -456,7 +463,7 @@ section[data-testid] {
 .progress-bar {
 	--bg-color: rgba(255, 244, 228, 0.18) !important;
 	--fg-color: rgba(255, 250, 242, 0.95) !important;
-	--is-active-fg-color: #f0c24f !important;
+	--is-active-fg-color: var(--glass-accent-bright) !important;
 	--progress-bar-height: 5px !important;
 }
 
@@ -493,20 +500,17 @@ section[data-testid] {
 
 /* ---------- Page action bar (play, shuffle, save, download, more) ----------
    Same glass as the player controls, tinted with the current song's accent. */
-[data-testid="action-bar-row"] {
-	--text-bright-accent: var(--glass-accent);
-	--essential-bright-accent: var(--glass-accent);
-}
-
-[data-testid="action-bar-row"] [data-encore-id="buttonPrimary"] {
+/* Play buttons everywhere (action bar, sticky header, cards, home shortcuts):
+   a glass bubble tinted with the song's accent */
+[data-encore-id="buttonPrimary"]:has(> .encore-bright-accent-set) {
 	border-radius: 50%;
 	transition: transform 0.15s ease;
 }
 
-[data-testid="action-bar-row"] [data-encore-id="buttonPrimary"] > span {
+[data-encore-id="buttonPrimary"] > .encore-bright-accent-set {
 	background:
 		linear-gradient(160deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0) 60%),
-		color-mix(in srgb, var(--glass-accent) 62%, transparent) !important;
+		color-mix(in srgb, var(--glass-accent) 72%, transparent) !important;
 	backdrop-filter: blur(20px) saturate(180%);
 	-webkit-backdrop-filter: blur(20px) saturate(180%);
 	border: 1px solid rgba(255, 255, 255, 0.3);
@@ -518,13 +522,13 @@ section[data-testid] {
 	transition: background 0.2s ease, box-shadow 0.2s ease;
 }
 
-[data-testid="action-bar-row"] [data-encore-id="buttonPrimary"]:hover > span {
+[data-encore-id="buttonPrimary"]:hover > .encore-bright-accent-set {
 	background:
 		linear-gradient(160deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.04) 60%),
-		color-mix(in srgb, var(--glass-accent) 74%, transparent) !important;
+		color-mix(in srgb, var(--glass-accent) 84%, transparent) !important;
 }
 
-[data-testid="action-bar-row"] [data-encore-id="buttonPrimary"]:active {
+[data-encore-id="buttonPrimary"]:has(> .encore-bright-accent-set):active {
 	transform: scale(0.96);
 }
 
@@ -571,4 +575,40 @@ section[data-testid] {
 	box-shadow:
 		inset 0 1px 0 var(--glass-shine),
 		0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+/* ---------- Music-video Now Playing view ----------
+   With a music video, Spotify paints the panel with a colour taken from the
+   video (inline --background-base) fading to near-black. Let the glass show. */
+.NowPlayingView {
+	--background-base: transparent !important;
+}
+
+.NowPlayingView .c8WtSmcUC5DS9LmAULrb {
+	background: transparent !important;
+}
+
+/* Its sticky title strip, once scrolled: frosted like the top bar */
+.sVhXl95YZkkta3Jnjigr .QptzFzK9BPyRaxUswEDy {
+	background-color: rgba(20, 14, 10, 0.4) !important;
+	backdrop-filter: blur(30px) saturate(160%);
+	-webkit-backdrop-filter: blur(30px) saturate(160%);
+	box-shadow: none !important;
+}
+
+/* Canvas / video loop at the top of the Now Playing panel (Spotify 1.3.8+).
+   Spotify stacks overlays that end in solid near-black and clips the video
+   with a hard rounded edge. Fade the whole surface into the glass instead,
+   and keep only a light scrim behind the title. */
+[data-canvas-surface] {
+	-webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 45%, rgba(0, 0, 0, 0.6) 65%, rgba(0, 0, 0, 0.2) 85%, transparent 100%);
+	mask-image: linear-gradient(to bottom, #000 0%, #000 45%, rgba(0, 0, 0, 0.6) 65%, rgba(0, 0, 0, 0.2) 85%, transparent 100%);
+}
+
+[data-canvas-surface] [aria-hidden="true"] > div:nth-child(2) {
+	background: linear-gradient(transparent 45%, rgba(0, 0, 0, 0.35) 75%, rgba(0, 0, 0, 0.2) 100%) !important;
+}
+
+[data-canvas-surface] [aria-hidden="true"] > div:nth-child(3) {
+	background: rgba(0, 0, 0, 0.12) !important;
 }
